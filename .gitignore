@@ -1,0 +1,11 @@
+log
+.pydevproject
+.directory
+*.o
+*~
+*.log
+*.pyc
+*.settings/
+env/
+.idea/
+settings.cfg

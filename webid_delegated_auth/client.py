@@ -10,8 +10,17 @@ from base64 import b64decode
 from .exceptions import *
 from string import replace, ljust
 
-from .common import extract_signed_url
 
+def extract_signed_url(auth_url):
+    """
+        Removes the tail after the sig parameter value.
+    """
+    sig_pos = auth_url.find('sig=')
+    if sig_pos == -1:
+        raise IncompleteAuthURLError(auth_url)
+
+    signed_url = auth_url[: sig_pos - 1]
+    return signed_url
 
 
 class DelegatedAuthClient(object):
@@ -104,9 +113,8 @@ class DelegatedAuthClient(object):
             Makes b64 encoding compatible with transport in a query value
             (+ / and = are forbidden so have to be replaced and restored when received)
         """
-        signature = ljust(replace(sig, '-', '+').replace('_', '/'),
-                          len(sig) + len(sig) % 4, "=")
-        signature = b64decode(signature)
+        # {"-": "+", "_": "/" }
+        signature = b64decode(ljust(sig, len(sig) + len(sig) % 4, "="), "-_")
 
         self._service_pkey.verify_init()
         self._service_pkey.verify_update(signed_url)

@@ -18,41 +18,52 @@ ibdcHoXPNxFkfPSBHmP3QutrDc9LNbDINQTYaKinrHQklIYxFERsqhlGhexnvtG2
 iQIDAQAB
 -----END PUBLIC KEY-----"""
 
+final_cb = "https://localhost:5000/cb"
 
-# mp_rsa_pubkey = """-----BEGIN PUBLIC KEY-----
-# MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvnS5Etp0DLq/R3DeQrK0
-# UnX04yTZhGYEtXFYrFncgwcTn7tJrbNYBQbQ1KPVcYE2KV6CjD2N802BhRyiAPyZ
-# +NmDuCOckd0/50rZvf4lISHp2WGrQs9DZd8hwuIkRSfcVCdGTbLPOZmnZ5Cypr0R
-# e/7PIlCRIi/cyel3dX3GHfUlJnH8mu4OQFLNRxM/Jko0+whmZTplaGfPktgp2egz
-# PdB+84Ia61XmToTAxEhmknlSXVsP/YVuqLVlf4MH5GVfcwICiuGKA7hKtComhNjU
-# nR7IbiI3fNWFJV/4BhKabWZUAu12rDHVEgin/nFIRH2h/qhmNLn0Odc6n2Lp4D3e
-# YwIDAQAB
-# -----END PUBLIC KEY-----"""
-
-
-
-cb_url = "https://localhost/login/cb?toto=raoul"
-#cb_url = "https://localhost/login/cb"
+cb1_url = "https://localhost/login/cb?toto=raoul"
+cb2_url = "https://localhost/login/cb"
+cb3_url = "https://localhost/login/cb?final=%s" % quote_plus(final_cb)
 
 response_1_url = "https://localhost/login/cb?toto=raoul&webid=https%3A%2F%2Fbenjamin.bcgl.fr%2Fprofile%23me&ts=2014-03-21CET22%3A13%3A55%2B01%3A00&sig=gt5hha9c9y72Pswo5uaiaT6wEfTJ43sa3Xi_VdkrsZvgb6-F1isJ-5EFKffljJ-x-BOhOfvf8ODG7cMVVpeD7rZBLpFXqi2z7bFEKnnwUWJlgGJLbd85NztR1HETLONRJVuibgCE0QvbN94BjPEkENCEHTQB2pA8gj1LB4_7Bs47-gc8Tdx1i5-7gLAyrtslLHrdjKAy6OTtCfP-t7mpjwZBM2uPoxr138Gjofp97Mjg3MQWL2qdlujlAs2gDlZd9kQqdI9k0SHXiBhSTqMEkq72F5alh0zn2nTRR60jdKHGxhaTvu-SrfibUrtPckxWtQl6573bC2n9gVzzmDwsgg&referer=https://auth.my-profile.eu"
 response_2_url = "https://localhost/login/cb?webid=https%3A%2F%2Fbenjamin.bcgl.fr%2Fprofile%23me&ts=2014-03-21CET23%3A01%3A32%2B01%3A00&sig=UI5ekpDIrii45yDV3qZzltohCpJUPim1g8ZMaXkGAS1LOxGu0WAOPiiLd4Abr_nZmHYjUnU7o_JtZxH301z4PyGkQdBxPN_GSg7V9RtoIhd2mpmBIeJURWlCQR_kkmzGuAdO2Pn509PrRCXmsa8auWZ6DyiaMw-yJuxRfbIoptm5pmK_FWV5CPRorx6dwmP2vzvHZzAgC2E19XyBvA-8_a_dMbDpiQnTZN-x8Is51x4YUUysjQncH8LiQfYY-eFGM5vUbdZ9RMD2b0Ofjzno0AfP7oD5wYOFX8S7BPC7UqX_zonadJw5bseCRGjlBaTO30xvWuj6005vnUx844hu4Q&referer=https://auth.my-profile.eu"
+response_3_url = "https://localhost/login/cb?final=https%3A%2F%2Flocalhost%3A5000%2Fcb&webid=https%3A%2F%2Fbenjamin.bcgl.fr%2Fprofile%23me&ts=2014-03-22CET14%3A42%3A47%2B01%3A00&sig=BMYWUrc2A1OnMwOOsuxutji2smIPmpqxRegdeRXM-bz5TkiIvPjKtn2LTfY__uPQChZf6nqfwB_wDLQaXwGMyimzQ7rKjGlcpW_fuuX13uFSlEG8sG2NCg-seI3rJ_NjiuahALENfUXDdm-aTuPwe9tOx6-452PZfAQSGvSyo-Lq4RUh5E01LKhx6Kzu9pEYe7oQMttWzTXI-7bBO5Jb9tZX7SW1Yi7vmGajccx4wyHTHnIf1hLoPl-HeDkdDk2nt8qX-MpEKTlhFRwp5UbF4Yx4ZXIntor_mVTVQLI9Jtoz2ECBzaLOKDYZfICo-zT3LzuEoRuRdSViPr2hdeFgKA&referer=https://auth.my-profile.eu"
+
+# Modified signature
+fake_resp_url = "https://localhost/login/cb?webid=https%3A%2F%2Fbenjamin.bcgl.fr%2Fprofile%23me&ts=2014-03-21CET23%3A01%3A32%2B01%3A00&sig=UI5ekpDIrii45yDV3qZzltohCpJUPim1g8ZMaXkGAS1LOxGu0WAOPiiLd4Abr_nZmHYjUnU7o_JtZxH301z4PyGkQdBxPN_GSg7V9RtoIhd2mpmBIeJURWlCQR_kkmzGuAdO2Pn509PrRCXmsa8auWZ6DyiaMw-yJuxRfbIoptm5pmK_FWV5CPRorx6dwmP2vzvHZzAgC2E19XyBvA-8_a_dMbDpiQnTZN-x8Is51x4YUUysjQncH8LiQfYY-eFGM5vUbdZ9RMD2b0Ofjzno0AfP7oD5wYOFX8S7BPC7UqX_zonadJw5bseCRGjlBaTO30xvWuj6005vnUx844hu99&referer=https://auth.my-profile.eu"
+
+no_cert_resp_3_url = "https://localhost/login/cb?final=https%3A%2F%2Flocalhost%3A5000%2Fcb?error=certNoOwnership&sig=ZrQXhG2QAj-GtsyixJQaQNNCivwnW05fJLRrNeKw6ytzQW6ZVMXBYoJZ2tyeRs4HNqgudXUaHh04pH2F4wEQ-geOTIvbcLr0wJONdchsnbMgNUtr6IXfL1QH7ueD5GzeZXCHmQZfRxWpQI-r-reg2fd1JCy5iLVWB6ItTStkJMB-CRyFcDgZfEUHCL8cNwm0W9hy6QeWEcpdk6gQh9ufPzuBIzBpdB0McJAm4vY6tlLbdQJY-o6vITwEYVuVx0FxRWH37ga4fxUbi6LeIHBGb3xledJKuT-4dDDaqnxt0RzR2FAezaw9Xsd4lfbZbCGMXzAD4G3fshgFVlgiDR15Tg&referer=https://auth.my-profile.eu"
 
 webid = "https://benjamin.bcgl.fr/profile#me"
 
 
 class ClientTest(TestCase):
 
-    def test(self):
+    def test_with_webid(self):
         mp_client = DelegatedAuthClient(mp_rsa_pubkey, mp_login_url)
 
-        self.assertEqual(mp_client.gen_request_url(cb_url), mp_login_url + "?authreqissuer="+quote_plus(cb_url))
-        #print mp_client.gen_request_url(cb_url)
+        self.assertEqual(mp_client.gen_request_url(cb1_url), mp_login_url + "?authreqissuer="+quote_plus(cb1_url))
+        self.assertEqual(mp_client.gen_request_url(cb2_url), mp_login_url + "?authreqissuer="+quote_plus(cb2_url))
+        self.assertEqual(mp_client.gen_request_url(cb3_url), mp_login_url + "?authreqissuer="+quote_plus(cb3_url))
+        print mp_client.gen_request_url(cb3_url)
 
         # Too old
         self.assertRaises(ExpiredAuthURLError, mp_client.validate, response_1_url)
 
         no_expiration_mp_client = DelegatedAuthClient(mp_rsa_pubkey, mp_login_url,
                                                       token_expiration=10e20)
+
+        # Bad signature
+        self.assertRaises(InvalidSignatureError, no_expiration_mp_client.validate, fake_resp_url)
+
         self.assertEquals(webid, no_expiration_mp_client.validate(response_1_url))
         self.assertEquals(webid, no_expiration_mp_client.validate(response_2_url))
+        self.assertEquals(webid, no_expiration_mp_client.validate(response_3_url))
+
+    def test_no_webid(self):
+        no_expiration_mp_client = DelegatedAuthClient(mp_rsa_pubkey, mp_login_url,
+                                                      token_expiration=10e20)
+        self.assertRaises(NoCertException, no_expiration_mp_client.validate, no_cert_resp_3_url)
+
+
+
 

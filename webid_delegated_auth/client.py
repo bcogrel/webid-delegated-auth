@@ -2,7 +2,7 @@
     Delegated Authentication client-side tools
 """
 from urlparse import urlparse, parse_qs, urlunparse
-from urllib import urlencode, unquote, quote_plus
+from urllib import urlencode, unquote
 import dateutil.parser
 from datetime import datetime
 from M2Crypto import BIO, RSA, EVP
@@ -11,6 +11,8 @@ from .exceptions import InvalidCallbackURLError, InvalidServiceURLError
 from .exceptions import IncompleteAuthURLError, InvalidSignatureError
 from .exceptions import ExpiredAuthURLError, UnsyncClockError
 from string import replace, ljust
+
+from .common import gen_signed_url
 
 
 class DelegatedAuthClient(object):
@@ -90,8 +92,7 @@ class DelegatedAuthClient(object):
         partial_url = urlunparse(u)
 
         # Check the signature
-        sep = "&" if "?" in partial_url else "?"
-        test_url = "%s%swebid=%s&ts=%s" % (partial_url, sep, quote_plus(webid), quote_plus(ts))
+        test_url = gen_signed_url(partial_url, webid, ts)
         # May raise an InvalidSignatureError
         self._check_signature(test_url, sig)
 
@@ -102,10 +103,9 @@ class DelegatedAuthClient(object):
         return unquote(webid)
 
     def _check_signature(self, test_url, sig):
-        """
-            TODO: to be cleaned!
-        """
         # Seen in https://github.com/WebIDauth/WebIDDelegatedAuth/blob/master/lib/Authentication_URL.php#130
+        # Makes b64 encoding compatible with transport in a query value
+        # (+ / and = are forbidden so have to be replaced and restored when received)
         signature = ljust(replace(sig, '-', '+').replace('_', '/'),
                           len(sig) + len(sig) % 4, "=")
         signature = b64decode(signature)
@@ -113,10 +113,8 @@ class DelegatedAuthClient(object):
         self._service_pkey.verify_init()
         self._service_pkey.verify_update(test_url)
         valid = (self._service_pkey.verify_final(signature) == 1)
-
         if not valid:
             raise InvalidSignatureError(test_url)
-        return
 
     def _check_timestamp(self, ts):
         """

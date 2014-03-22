@@ -7,12 +7,11 @@ import dateutil.parser
 from datetime import datetime
 from M2Crypto import BIO, RSA, EVP
 from base64 import b64decode
-from .exceptions import InvalidCallbackURLError, InvalidServiceURLError
-from .exceptions import IncompleteAuthURLError, InvalidSignatureError
-from .exceptions import ExpiredAuthURLError, UnsyncClockError
+from .exceptions import *
 from string import replace, ljust
 
-from .common import gen_signed_url
+from .common import extract_signed_url
+
 
 
 class DelegatedAuthClient(object):
@@ -28,6 +27,9 @@ class DelegatedAuthClient(object):
         """
             Token expiration and negative duration in seconds
         """
+        if not service_url.startswith("https"):
+            raise InvalidServiceURLError("HTTPS is required")
+        self._service_url = service_url
 
         # SSL
         bio = BIO.MemoryBuffer(service_pub_key)
@@ -37,9 +39,6 @@ class DelegatedAuthClient(object):
         # Currently, only RSA-SHA1 is supported
         self._service_pkey.reset_context(md='sha1')
 
-        if not service_url.startswith("https"):
-            raise InvalidServiceURLError("HTTPS is required")
-        self._service_url = service_url
         self._token_expiration = token_expiration
         # Tolerance to negative duration due to un-sync clocks
         self._negative_duration_tolerance = negative_duration_tolerance
@@ -67,34 +66,31 @@ class DelegatedAuthClient(object):
         # Cleaned query dict (no systematic list for attr.)
         query_dict = dict((k, v if len(v) > 1 else v[0])
             for k, v in parse_qs(parsed_u.query).iteritems())
-        print query_dict
-
-
-        #TODO: check if there is a returned error
-        # See https://auth.my-profile.eu/
 
         try:
-            # Extracts and removes
-            webid = query_dict.pop('webid')
-            sig = query_dict.pop('sig')
-            ts = query_dict.pop('ts')
-
+            sig = query_dict['sig']
         except KeyError as e:
             raise IncompleteAuthURLError(e)
 
-        # Optional parameter: referer
-        if query_dict.has_key('referer'):
-            query_dict.pop('referer')
-
-        # Shrink URL by removing the query
-        u = list(parsed_u)
-        u[4] = urlencode(query_dict)
-        partial_url = urlunparse(u)
+        signed_url = extract_signed_url(auth_url)
 
         # Check the signature
-        test_url = gen_signed_url(partial_url, webid, ts)
         # May raise an InvalidSignatureError
-        self._check_signature(test_url, sig)
+        self._check_signature(signed_url, sig)
+
+
+        # Raise a specific exception if an error
+        # has been declared in the URI
+        self._check_returned_exception(signed_url)
+
+        # If no declared error
+        try:
+            # Extracts and removes
+            webid = query_dict['webid']
+            ts = query_dict['ts']
+
+        except KeyError as e:
+            raise IncompleteAuthURLError(e)
 
         #Check timestamp (less critical than fake cert)
         # May raise an ExpiredAuthURLError
@@ -102,19 +98,21 @@ class DelegatedAuthClient(object):
 
         return unquote(webid)
 
-    def _check_signature(self, test_url, sig):
-        # Seen in https://github.com/WebIDauth/WebIDDelegatedAuth/blob/master/lib/Authentication_URL.php#130
-        # Makes b64 encoding compatible with transport in a query value
-        # (+ / and = are forbidden so have to be replaced and restored when received)
+    def _check_signature(self, signed_url, sig):
+        """
+            Signature decoding from https://github.com/WebIDauth/WebIDDelegatedAuth/blob/master/lib/Authentication_URL.php#130
+            Makes b64 encoding compatible with transport in a query value
+            (+ / and = are forbidden so have to be replaced and restored when received)
+        """
         signature = ljust(replace(sig, '-', '+').replace('_', '/'),
                           len(sig) + len(sig) % 4, "=")
         signature = b64decode(signature)
 
         self._service_pkey.verify_init()
-        self._service_pkey.verify_update(test_url)
+        self._service_pkey.verify_update(signed_url)
         valid = (self._service_pkey.verify_final(signature) == 1)
         if not valid:
-            raise InvalidSignatureError(test_url)
+            raise InvalidSignatureError(signed_url)
 
     def _check_timestamp(self, ts):
         """
@@ -132,4 +130,51 @@ class DelegatedAuthClient(object):
 
         if delta < self._negative_duration_tolerance:
             raise UnsyncClockError()
+
+    def _check_returned_exception(self, signed_url):
+        """
+           If a User auth exception has been returned,
+           checks the signature and
+           returns a specific exception
+        """
+        key = 'error='
+
+        if not key in signed_url:
+            return
+
+        # Robust approach (prevents a double "?" bad format)
+        error_pos = signed_url.find(key)
+        next_rel_sep_pos = signed_url[error_pos:].find("&")
+        if next_rel_sep_pos == -1:
+            error = signed_url[error_pos+len(key):]
+        else:
+            error = signed_url[error_pos+len(key): error_pos + next_rel_sep_pos]
+
+        if error == "noClaim":
+            raise NoClaimException()
+        elif error == "nocert":
+            raise NoCertException()
+        elif error == "certNoOwnership":
+            raise CertNoOwnershipException()
+        elif error == "rejectedClaim":
+            raise RejectedClaimException()
+        elif error == "noURI":
+            raise CertWithoutUriException()
+        elif error == "certExpired":
+            raise ExpiredUserCertException()
+        elif error == "noVerifiedWebId":
+            raise UndeclaredWebIdCertException()
+        elif error == "noWebId":
+            raise NotAWebIDException()
+        elif error == "IdPError":
+            raise IdPException()
+        # Unknown code
+        else:
+            raise UserAuthException(error)
+
+
+
+
+
+
 

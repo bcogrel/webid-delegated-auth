@@ -1,5 +1,7 @@
 """
-    Exceptions
+    Exceptions.
+
+    Compatibility with those declared in https://auth.my-profile.eu/
 """
 
 
@@ -41,6 +43,19 @@ class NoCertException(NoClaimException):
     pass
 
 
+class CertNoOwnershipException(NoCertException):
+    """
+        The cert and its private key does not match.
+        Strange mesage that may happen when the user
+        refuses to show its cert.
+
+        Specific to WebID-TLS
+
+        Code: certNoOwnership
+    """
+    pass
+
+
 class RejectedClaimException(UserAuthException):
     """
         The user provided a claim
@@ -51,7 +66,19 @@ class RejectedClaimException(UserAuthException):
 
         Code: rejectedClaim
     """
+    pass
 
+
+class CertWithoutUriException(RejectedClaimException):
+    """
+        The user cert does not contain an URI.
+        The other claim is not considered.
+
+        Specific to WebID-TLS
+
+        Code: noURI
+    """
+    pass
 
 
 class ExpiredUserCertException(RejectedClaimException):

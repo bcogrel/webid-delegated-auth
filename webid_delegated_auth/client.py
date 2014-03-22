@@ -31,7 +31,7 @@ class DelegatedAuthClient(object):
 
     def __init__(self, service_pub_key, service_url,
                  token_expiration=60,
-                 negative_duration_tolerance=30,
+                 negative_duration_tolerance=-30,
                  require_https_client=True):
         """
             Token expiration and negative duration in seconds

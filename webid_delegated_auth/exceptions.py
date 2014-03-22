@@ -36,4 +36,15 @@ class InvalidSignatureError(RejectedAuthURLError):
 class ExpiredAuthURLError(RejectedAuthURLError):
     """ Too old timestamp
     """
+    def __init__(self, expired_since):
+        RejectedAuthURLError.__init__(self, "Auth URL has expired %d seconds ago"
+                                            % expired_since)
+        # In seconds
+        self.expired_since = expired_since
+
+
+class UnsyncClockError(RejectedAuthURLError):
+    """
+        When the negative time is too important
+    """
     pass

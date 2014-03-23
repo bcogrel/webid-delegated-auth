@@ -7,8 +7,16 @@ Compatible with auth services running `the WebIDDelegatedAuth PHP library
 <https://github.com/WebIDauth/WebIDDelegatedAuth>`_.
 
 
-Requirements
+Installation
 ------------
+
+In your virtualenv::
+
+    pip install webid-delegated-auth
+
+
+Requirements
+~~~~~~~~~~~~
 * Python 2.7
 * M2Crypto (uses OpenSSL)
 * python-dateutil

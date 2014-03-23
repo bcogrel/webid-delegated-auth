@@ -3,5 +3,5 @@
 """
 
 from .client import DelegatedAuthClient
-
-__all__ = [DelegatedAuthClient]
+from .signing import URLSigningService
+from .exceptions import *

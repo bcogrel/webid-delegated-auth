@@ -6,9 +6,9 @@ from urllib import urlencode, unquote
 import dateutil.parser
 from datetime import datetime
 from M2Crypto import BIO, RSA, EVP
-from base64 import b64decode
+from base64 import urlsafe_b64decode
 from .exceptions import *
-from string import replace, ljust
+from string import ljust
 
 
 def extract_signed_url(auth_url):
@@ -108,13 +108,8 @@ class DelegatedAuthClient(object):
         return unquote(webid)
 
     def _check_signature(self, signed_url, sig):
-        """
-            Signature decoding from https://github.com/WebIDauth/WebIDDelegatedAuth/blob/master/lib/Authentication_URL.php#130
-            Makes b64 encoding compatible with transport in a query value
-            (+ / and = are forbidden so have to be replaced and restored when received)
-        """
-        # {"-": "+", "_": "/" }
-        signature = b64decode(ljust(sig, len(sig) + len(sig) % 4, "="), "-_")
+        # Decodes the URL-safe-without-padding encoded signature
+        signature = urlsafe_b64decode(ljust(sig, len(sig) + len(sig) % 4, "="))
 
         self._service_pkey.verify_init()
         self._service_pkey.verify_update(signed_url)

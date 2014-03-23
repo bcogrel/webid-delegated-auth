@@ -18,7 +18,7 @@ def gen_signed_url_with_error(auth_req_issuer, error_code):
     return "%s%serror=%s" % (auth_req_issuer, sep, error_code)
 
 
-class URLSignator:
+class URLSigningService:
     """
         Signs Callback URLs
     """
@@ -61,7 +61,7 @@ class URLSignator:
         digest.update(signed_url)
         signature = self._rsa.sign(digest.digest())
 
-        # Encoding with substitution and right padding "==" removed
+        # URL-safe encoding and right padding "==" removed
         sig = urlsafe_b64encode(signature).rstrip("=")
         #print "Encoded signature: %s" % sig
         return sig

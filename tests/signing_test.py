@@ -1,6 +1,6 @@
 from unittest import TestCase
 from urllib import quote_plus
-from webid_delegated_auth.signator import URLSignator
+from webid_delegated_auth.signing import URLSigningService
 from webid_delegated_auth.client import DelegatedAuthClient
 from webid_delegated_auth.exceptions import *
 
@@ -50,31 +50,31 @@ cb_url_1 = "https://localhost/login/cb"
 cb_url_2 = "https://localhost/login/cb?key=value"
 cb_url_3 = "https://localhost/login/cb?other=%s" % quote_plus("http://example.com/here?be=careful")
 
-class SignatorTest(TestCase):
 
+class SigningServiceTest(TestCase):
     def setUp(self):
         self.client = DelegatedAuthClient(public_key, service_url)
-        self.signator = URLSignator(private_key, referer_url)
+        self.signing_service = URLSigningService(private_key, referer_url)
 
     def valid_auth_test(self):
-        auth_url = self.signator.gen_auth_url(webid, cb_url_1)
+        auth_url = self.signing_service.gen_auth_url(webid, cb_url_1)
         #print auth_url
         self.assertEquals(webid, self.client.validate(auth_url))
 
-        auth_url = self.signator.gen_auth_url(webid, cb_url_2)
+        auth_url = self.signing_service.gen_auth_url(webid, cb_url_2)
         self.assertEquals(webid, self.client.validate(auth_url))
 
-        auth_url = self.signator.gen_auth_url(webid, cb_url_3)
+        auth_url = self.signing_service.gen_auth_url(webid, cb_url_3)
         self.assertEquals(webid, self.client.validate(auth_url))
 
     def no_claim_error_test(self):
-        no_claim_error_url = self.signator.gen_no_claim_error_url(cb_url_1)
+        no_claim_error_url = self.signing_service.gen_no_claim_error_url(cb_url_1)
         self.assertRaises(NoClaimException, self.client.validate,
-                            no_claim_error_url)
-        no_claim_error_url = self.signator.gen_no_claim_error_url(cb_url_2)
+                          no_claim_error_url)
+        no_claim_error_url = self.signing_service.gen_no_claim_error_url(cb_url_2)
         self.assertRaises(NoClaimException, self.client.validate,
-                            no_claim_error_url)
-        no_claim_error_url = self.signator.gen_no_claim_error_url(cb_url_3)
+                          no_claim_error_url)
+        no_claim_error_url = self.signing_service.gen_no_claim_error_url(cb_url_3)
         self.assertRaises(NoClaimException, self.client.validate,
-                            no_claim_error_url)
+                          no_claim_error_url)
 

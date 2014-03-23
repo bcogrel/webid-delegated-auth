@@ -1,14 +1,24 @@
 webid-delegated-auth
 ====================
 
-WebID delegated authentication tools (signing and checking auth URLs).
+WebID delegated authentication Python tools (signing and checking auth URLs).
 
 Compatible with auth services running `the WebIDDelegatedAuth PHP library
 <https://github.com/WebIDauth/WebIDDelegatedAuth>`_.
 
 
+Requirements
+------------
+* Python 2.7
+* M2Crypto (uses OpenSSL)
+* python-dateutil
+
+
 Examples
 --------
+
+Go to `doc/examples <https://github.com/bcogrel/webid-delegated-auth/tree/master/doc/examples>`_
+for a better reading experience (with syntax highlight).
 
 Logging WebID-TLS users
 ~~~~~~~~~~~~~~~~~~~~~~~

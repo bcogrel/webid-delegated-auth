@@ -59,49 +59,49 @@ class SigningServiceTest(TestCase):
     def valid_auth_test(self):
         auth_url = self.signing_service.gen_auth_url(webid, cb_url_1)
         #print auth_url
-        self.assertEquals(webid, self.client.validate(auth_url))
+        self.assertEquals(webid, self.client.check(auth_url))
 
         auth_url = self.signing_service.gen_auth_url(webid, cb_url_2)
-        self.assertEquals(webid, self.client.validate(auth_url))
+        self.assertEquals(webid, self.client.check(auth_url))
 
         auth_url = self.signing_service.gen_auth_url(webid, cb_url_3)
-        self.assertEquals(webid, self.client.validate(auth_url))
+        self.assertEquals(webid, self.client.check(auth_url))
 
     def no_claim_error_test(self):
         no_claim_error_url = self.signing_service.gen_no_claim_error_url(cb_url_1)
-        self.assertRaises(NoClaimException, self.client.validate,
+        self.assertRaises(NoClaimException, self.client.check,
                           no_claim_error_url)
         no_claim_error_url = self.signing_service.gen_no_claim_error_url(cb_url_2)
-        self.assertRaises(NoClaimException, self.client.validate,
+        self.assertRaises(NoClaimException, self.client.check,
                           no_claim_error_url)
         no_claim_error_url = self.signing_service.gen_no_claim_error_url(cb_url_3)
-        self.assertRaises(NoClaimException, self.client.validate,
+        self.assertRaises(NoClaimException, self.client.check,
                           no_claim_error_url)
 
     def rejected_claim_error_test(self):
         error_url = self.signing_service.gen_rejected_claim_error_url(cb_url_3)
-        self.assertRaises(RejectedClaimException, self.client.validate, error_url)
+        self.assertRaises(RejectedClaimException, self.client.check, error_url)
 
     def no_cert_error_test(self):
         error_url = self.signing_service.gen_no_cert_error_url(cb_url_1)
-        self.assertRaises(NoCertException, self.client.validate, error_url)
+        self.assertRaises(NoCertException, self.client.check, error_url)
 
     def cert_without_uri_error_test(self):
         error_url = self.signing_service.gen_cert_without_uri_error_url(cb_url_2)
-        self.assertRaises(CertWithoutUriException, self.client.validate, error_url)
+        self.assertRaises(CertWithoutUriException, self.client.check, error_url)
 
     def expired_cert_error_test(self):
         error_url = self.signing_service.gen_expired_cert_error_url(cb_url_3)
-        self.assertRaises(ExpiredUserCertException, self.client.validate, error_url)
+        self.assertRaises(ExpiredUserCertException, self.client.check, error_url)
 
     def undeclared_cert_error_test(self):
         error_url = self.signing_service.gen_undeclared_cert_error_url(cb_url_1)
-        self.assertRaises(UndeclaredCertException, self.client.validate, error_url)
+        self.assertRaises(UndeclaredCertException, self.client.check, error_url)
 
     def not_a_webid_error_test(self):
         error_url = self.signing_service.gen_not_a_webid_error_url(cb_url_2)
-        self.assertRaises(NotAWebIDException, self.client.validate, error_url)
+        self.assertRaises(NotAWebIDException, self.client.check, error_url)
 
     def idp_error_test(self):
         error_url = self.signing_service.gen_idp_error_url(cb_url_3)
-        self.assertRaises(IdPException, self.client.validate, error_url)
+        self.assertRaises(IdPException, self.client.check, error_url)

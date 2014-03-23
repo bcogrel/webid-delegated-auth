@@ -65,22 +65,22 @@ class ClientTest(TestCase):
         print self.mp_client.gen_request_url(cb3_url)
 
         # Too old
-        self.assertRaises(ExpiredAuthURLError, self.mp_client.validate, response_1_url)
+        self.assertRaises(ExpiredAuthURLError, self.mp_client.check, response_1_url)
 
 
         # Bad signature
-        self.assertRaises(InvalidSignatureError, self.no_expiration_mp_client.validate,
+        self.assertRaises(InvalidSignatureError, self.no_expiration_mp_client.check,
                           fake_resp_url)
 
-        self.assertEquals(webid, self.no_expiration_mp_client.validate(response_1_url))
-        self.assertEquals(webid, self.no_expiration_mp_client.validate(response_2_url))
-        self.assertEquals(webid, self.no_expiration_mp_client.validate(response_3_url))
+        self.assertEquals(webid, self.no_expiration_mp_client.check(response_1_url))
+        self.assertEquals(webid, self.no_expiration_mp_client.check(response_2_url))
+        self.assertEquals(webid, self.no_expiration_mp_client.check(response_3_url))
 
     def test_no_ownership(self):
         """ When there is no cert """
-        self.assertRaises(CertNoOwnershipException, self.no_expiration_mp_client.validate, no_cert_resp_2_url)
+        self.assertRaises(CertNoOwnershipException, self.no_expiration_mp_client.check, no_cert_resp_2_url)
 
     def test_cert_without_uri(self):
-        self.assertRaises(CertWithoutUriException, self.no_expiration_mp_client.validate, no_uri_url)
+        self.assertRaises(CertWithoutUriException, self.no_expiration_mp_client.check, no_uri_url)
 
 

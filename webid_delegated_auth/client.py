@@ -66,7 +66,7 @@ class DelegatedAuthClient(object):
         u[4] = urlencode(query_dict)
         return urlunparse(u)
 
-    def validate(self, auth_url):
+    def check(self, auth_url):
         """ Returns the WebID if the token is valid
             Raise exceptions otherwise
         """

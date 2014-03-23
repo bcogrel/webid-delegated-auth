@@ -4,6 +4,16 @@
     Compatibility with those declared in https://auth.my-profile.eu/
 """
 
+NO_CLAIM_CODE = "noClaim"
+NO_CERT_CODE = "nocert"
+CERT_NO_OWNERSHIP_CODE = "certNoOwnership"
+REJECTED_CLAIM_CODE = "rejectedClaim"
+CERT_WITHOUT_URI_CODE = "noURI"
+EXPIRED_CERT_CODE = "certExpired"
+UNDECLARED_CERT_CODE = "noVerifiedWebId"
+NOT_A_WEBID_CODE = "noWebId"
+IDP_ERROR_CODE = "IdPError"
+
 
 class AuthException(Exception):
     """
@@ -93,7 +103,7 @@ class ExpiredUserCertException(RejectedClaimException):
     pass
 
 
-class UndeclaredWebIdCertException(RejectedClaimException):
+class UndeclaredCertException(RejectedClaimException):
     """
         No entry for the user cert has been found
         in the WebID profile document.

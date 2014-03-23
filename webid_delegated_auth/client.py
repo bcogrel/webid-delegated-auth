@@ -153,29 +153,27 @@ class DelegatedAuthClient(object):
         else:
             error = signed_url[error_pos+len(key): error_pos + next_rel_sep_pos]
 
-        if error == "noClaim":
+        if error == NO_CLAIM_CODE:
             raise NoClaimException()
-        elif error == "nocert":
+        elif error == NO_CERT_CODE:
             raise NoCertException()
-        elif error == "certNoOwnership":
+        elif error == CERT_NO_OWNERSHIP_CODE:
             raise CertNoOwnershipException()
-        elif error == "rejectedClaim":
+        elif error == REJECTED_CLAIM_CODE:
             raise RejectedClaimException()
-        elif error == "noURI":
+        elif error == CERT_WITHOUT_URI_CODE:
             raise CertWithoutUriException()
-        elif error == "certExpired":
+        elif error == EXPIRED_CERT_CODE:
             raise ExpiredUserCertException()
-        elif error == "noVerifiedWebId":
-            raise UndeclaredWebIdCertException()
-        elif error == "noWebId":
+        elif error == UNDECLARED_CERT_CODE:
+            raise UndeclaredCertException()
+        elif error == NOT_A_WEBID_CODE:
             raise NotAWebIDException()
-        elif error == "IdPError":
+        elif error == IDP_ERROR_CODE:
             raise IdPException()
         # Unknown code
         else:
             raise UserAuthException(error)
-
-
 
 
 

@@ -89,8 +89,8 @@ If you have not changed the auth url, you will see that the following message::
 If you take a very long token expiration duration, you will able to see the WebID I used.
 
 
-Sign Auth URLs
-~~~~~~~~~~~~~~
+Signing Auth URLs
+~~~~~~~~~~~~~~~~~
 
 If you can use the URLSigningService to build a WebID authentication service
 (with or without WebID-TLS)::
